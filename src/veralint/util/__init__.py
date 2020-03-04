@@ -3,6 +3,7 @@ import astroid
 import os
 
 __DEBUG__ = False
+# noinspection PyUnresolvedReferences
 if os.getenv('DEBUG'):
     from pprint import pprint, pformat
     __DEBUG__ = True
@@ -18,6 +19,8 @@ def full_function_path(node):
         reportname = '{module}.{function}'.format(
             module=node.func.expr.as_string(),
             function=node.func.attrname)
+    else:
+        return None
 
     return reportname
 
@@ -34,4 +37,4 @@ def import_function_map(modname, name):
 
     __DEBUG__ and print("  {:s} as {:s}".format(realname, importname))
 
-    return (importname, realname)
+    return importname, realname

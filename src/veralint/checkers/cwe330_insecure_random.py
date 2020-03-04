@@ -26,7 +26,7 @@ class CWE330_InsecureRandom_Checker(BaseChecker):
     }
     # options = (
     #     (
-            
+
     #     ),
     # )
 
@@ -48,26 +48,16 @@ class CWE330_InsecureRandom_Checker(BaseChecker):
         super(CWE330_InsecureRandom_Checker, self).__init__(linter)
         self._imports = {}
 
-    def visit_importfrom(self,node):
+    def visit_importfrom(self, node):
         __DEBUG__ and print(node.as_string())
         for name in node.names:
             (importname, realname) = import_function_map(node.modname, name)
-            # realname = '{module}.{function}'.format(
-            #     module=node.modname,function=name[0]
-            # )
-            #
-            # if name[1] is None:
-            #     importname = name[0]
-            # else:
-            #     importname = name[1]
-            
+
             if realname in self._unsafe_imports:
                 self.add_message(
                     'veralint-cwe330-insecure-random-import-star',
                     node=node
                 )
-
-            # __DEBUG__ and print("  {:s} as {:s}".format(realname, importname))
 
             self._imports[importname] = realname
 
