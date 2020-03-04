@@ -1,7 +1,8 @@
-from veralint.util import __DEBUG__, full_function_path, import_function_map
-from veralint.util.ImportFromMapper import ImportFromMapper
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IAstroidChecker
+
+from veralint.util import __DEBUG__, full_function_path
+from veralint.util.ImportFromMapper import ImportFromMapper
 
 
 class CWE330_InsecureRandom_Checker(BaseChecker, ImportFromMapper):
