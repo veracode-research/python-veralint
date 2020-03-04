@@ -1,12 +1,22 @@
 from veralint.util import __DEBUG__, full_function_path, import_function_map
+from veralint.util.ImportFromMapper import ImportFromMapper
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IAstroidChecker
 
 
-class CWE330_InsecureRandom_Checker(BaseChecker):
+class CWE330_InsecureRandom_Checker(BaseChecker, ImportFromMapper):
+    """CWE-330 Checks for use of the insecure RNGs from the ``random`` built-in module
+
+    Contains two checks: first, if any known-to-be-insufficiently-random function is called,
+    issues W3301. Second, if there is an ``from random import *`` statement, warns W3302. The second
+    is because the checker can't tell statically what actually gets imported from ``random``, so
+    it can't warn at time of use, unlike the first check.
+
+    See: https://cwe.mitre.org/data/definitions/330.html for information about this weakness
+    """
     __implements__ = IAstroidChecker
 
-    name = 'cwe0330-insecure-random'
+    name = 'cwe330-insecure-random'
     priority = -1
     msgs = {
         'W3301': (
@@ -49,17 +59,13 @@ class CWE330_InsecureRandom_Checker(BaseChecker):
         self._imports = {}
 
     def visit_importfrom(self, node):
-        __DEBUG__ and print(node.as_string())
-        for name in node.names:
-            (importname, realname) = import_function_map(node.modname, name)
-
+        for importname in super(CWE330_InsecureRandom_Checker, self).visit_importfrom(node):
+            realname = self._imports[importname]
             if realname in self._unsafe_imports:
                 self.add_message(
                     'veralint-cwe330-insecure-random-import-star',
                     node=node
                 )
-
-            self._imports[importname] = realname
 
     def visit_call(self, node):
         reportname = full_function_path(node)
