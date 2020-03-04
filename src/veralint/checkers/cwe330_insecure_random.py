@@ -50,6 +50,7 @@ class CWE330_InsecureRandom_Checker(BaseChecker, ImportFromMapper):
         'random.triangular',
         'random.whseed',
     )
+    _unsafe_func_message = 'veralint-cwe330-insecure-random'
 
     _unsafe_imports = (
         'random.*'
@@ -68,14 +69,3 @@ class CWE330_InsecureRandom_Checker(BaseChecker, ImportFromMapper):
                     node=node
                 )
 
-    def visit_call(self, node):
-        reportname = full_function_path(node)
-        realname = reportname
-        if reportname in self._imports:
-            realname = self._imports[reportname]
-
-        __DEBUG__ and print("Visit call '{}'".format(realname))
-
-        if realname in self._unsafe_func_names:
-            __DEBUG__ and print("  Unsafe call")
-            self.add_message('veralint-cwe330-insecure-random', node=node)

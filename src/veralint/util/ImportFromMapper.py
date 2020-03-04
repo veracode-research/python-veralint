@@ -1,4 +1,4 @@
-from veralint.util import __DEBUG__, import_function_map
+from veralint.util import __DEBUG__, import_function_map, full_function_path
 
 
 class ImportFromMapper(object):
@@ -10,6 +10,9 @@ class ImportFromMapper(object):
 
     See checkers/cwe330_insecure_random.py for an implementation example
     """
+    _unsafe_func_names = tuple()
+    _unsafe_func_message = ''
+
     def __init__(self):
         self._imports = {}
 
@@ -22,3 +25,15 @@ class ImportFromMapper(object):
             self._imports[importname] = realname
 
         return importnames
+
+    def visit_call(self, node):
+        reportname = full_function_path(node)
+        realname = reportname
+        if reportname in self._imports:
+            realname = self._imports[reportname]
+
+        __DEBUG__ and print("Visit call '{}'".format(realname))
+
+        if realname in self._unsafe_func_names:
+            __DEBUG__ and print("  Unsafe call")
+            self.add_message(self._unsafe_func_message, node=node)
